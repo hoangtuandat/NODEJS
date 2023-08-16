@@ -5,7 +5,7 @@ const salt = bcrypt.genSaltSync(10);
 
 let createNewUser = async (data) => {
   return new Promise(async (resolve, reject) => {
-    console.log(data)
+    console.log(data);
     try {
       let hashPasswordFromBcrypt = await hashUserPassword(data.password);
       await db.User.create({
@@ -15,11 +15,11 @@ let createNewUser = async (data) => {
         lastName: data.lastName,
         address: data.address,
         phonenumber: data.phonenumber,
-        gender: data.gender === '1'? true: false,
+        gender: data.gender === "1" ? true : false,
         roleId: data.roleId,
       });
-      
-      resolve('ok create a new user');
+
+      resolve("ok create a new user");
     } catch (e) {
       reject(e);
     }
@@ -38,19 +38,63 @@ let hashUserPassword = (password) => {
 };
 
 let getAllUser = () => {
-  return new Promise(async(resolve, reject) => {
-    try{
+  return new Promise(async (resolve, reject) => {
+    try {
       let users = db.User.findAll({
-        raw: true
+        raw: true,
       });
       resolve(users);
-    }catch(e) {
-      reject(e)
+    } catch (e) {
+      reject(e);
     }
-  })
-}
+  });
+};
+
+let getUserInfoById = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user = await db.User.findOne({
+        where: { id: userId },
+        raw: true,
+      });
+
+      if (user) {
+        resolve(user);
+      } else {
+        resolve({});
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+let updateUserData = (data) => {
+  // console.log('data updated')
+  console.log(data)
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user = await db.User.findOne({
+        where: { id: data.id },
+      });
+      if (user) {
+          user.firstName = data.firstName;
+          user.lastName = data.lastName;
+          user.address = data.address;
+          await user.save();
+        return resolve();
+      } else {
+        resolve();
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 module.exports = {
   createNewUser: createNewUser,
   getAllUser: getAllUser,
+  getUserInfoById: getUserInfoById,
+  updateUserData: updateUserData,
 };
